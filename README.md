@@ -9,6 +9,14 @@ mechanical design, electronics, tendon actuation, and preliminary
 experimental evaluation.
 
 ![Complete tendon-driven continuum robot prototype](media/prototype-overview.jpg)
+## Robot demonstration
+
+Physical prototype during tendon actuation.
+
+
+
+https://github.com/user-attachments/assets/f8559108-5f53-4d4b-8bde-74a4fe4d064c
+
 
 ## Prototype
 
