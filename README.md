@@ -8,6 +8,8 @@ This project connects static and dynamic Cosserat-rod modeling,
 mechanical design, electronics, tendon actuation, and preliminary
 experimental evaluation.
 
+![Complete tendon-driven continuum robot prototype](media/prototype-overview.jpg)
+
 ## Prototype
 
 The robot uses:
