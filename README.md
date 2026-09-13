@@ -1,9 +1,4 @@
 
-
-https://github.com/user-attachments/assets/0de2c3f7-74e6-4774-bb18-00cf13e078aa
-
-
-
 # Tendon-Driven Continuum Robot Platform
 
 A single-segment tendon-driven continuum robot developed during my
