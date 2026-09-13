@@ -1,0 +1,30 @@
+cff-version: 1.2.0
+message: "If you use this repository, please cite it using the metadata below."
+
+title: "Tendon-Driven Continuum Robot Platform"
+
+type: software
+
+authors:
+  - family-names: "Nour Edeen"
+    given-names: "Mohamad"
+
+repository-code: "https://github.com/mohamad-nouredeen/tdcr-cosserat-robot-platform"
+
+abstract: >
+  MATLAB implementations, mechanical design files, actuation software,
+  electronics documentation, and preliminary experimental evaluation
+  for a single-segment tendon-driven continuum robot based on
+  Cosserat-rod modeling.
+
+keywords:
+  - continuum robotics
+  - tendon-driven continuum robot
+  - TDCR
+  - Cosserat rod
+  - robotics
+  - MATLAB
+  - DYNAMIXEL
+  - experimental robotics
+
+license: GPL-3.0
