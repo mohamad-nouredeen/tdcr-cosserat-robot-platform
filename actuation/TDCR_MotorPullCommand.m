@@ -64,7 +64,7 @@ function TDCR_MotorPullCommand(pull_mm)
     zero_pos = [3 3 3];
 
     % Spool radius [mm]
-    spool_radius_mm = 2;
+    spool_radius_mm = 2.5;
 
     % Direction in which each motor pulls its tendon.
     %
@@ -103,15 +103,18 @@ function TDCR_MotorPullCommand(pull_mm)
     TORQUE_DISABLE = 0;
     COMM_SUCCESS = 0;
 
-    %% ============================================================
-    % Dynamixel SDK path
-    % =============================================================
+  %% ================================================================
+% Dynamixel SDK path
+% ================================================================
 
-    sdkRoot = ...
-        'C:\Users\mhmdn\AppData\Roaming\MathWorks\MATLAB Add-Ons\Collections\DynamixelSDK';
+sdkRoot = getenv('DYNAMIXEL_SDK_ROOT');
 
-    LIB_NAME = 'dxl_x64_c';
+if isempty(sdkRoot)
+    error(['DYNAMIXEL_SDK_ROOT is not configured. ', ...
+           'Set it to the local Dynamixel SDK installation folder.']);
+end
 
+LIB_NAME = 'dxl_x64_c';
     %% ============================================================
     % Hardware state
     
