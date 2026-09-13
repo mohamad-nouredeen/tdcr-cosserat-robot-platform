@@ -1,138 +1,241 @@
 # Tendon-Driven Continuum Robot Platform
 
 A single-segment tendon-driven continuum robot developed during my
-master’s thesis internship at ISIR, Sorbonne Université, as part of
-the MSc in Mechatronics Engineering at Politecnico di Torino.
+master's thesis internship at ISIR, Sorbonne Université, as part of the
+Master's Degree in Mechatronic Engineering at Politecnico di Torino.
 
-This project connects static and dynamic Cosserat-rod modeling,
-mechanical design, electronics, tendon actuation, and preliminary
-experimental evaluation.
+This project integrates static and dynamic Cosserat-rod modeling,
+mechanical design, DYNAMIXEL tendon actuation, electronics, and
+preliminary experimental evaluation of a physical TDCR prototype.
 
 ![Complete tendon-driven continuum robot prototype](media/prototype-overview.jpg)
-## Robot demonstration
+
+## Robot Demonstration
 
 Physical prototype during tendon actuation.
 
-
-
-https://github.com/user-attachments/assets/f8559108-5f53-4d4b-8bde-74a4fe4d064c
-
+[▶ Watch the robot demonstration video](media/robot-demonstration.mp4)
 
 ## Prototype
 
-The robot uses:
+The developed robot consists of:
 
-- A 250 mm hollow Nitinol backbone.
-- Eleven spacer disks.
-- Three nylon tendons arranged at 120° intervals.
-- A tendon-routing radius of 6 mm.
-- Three DYNAMIXEL RX-28 actuators.
-- Motor-driven spools with a nominal effective radius of 2.5 mm.
-- A MATLAB actuation interface using the DYNAMIXEL SDK.
+- A 250 mm hollow Nitinol backbone
+- Eleven spacer disks
+- Three nylon tendons arranged approximately 120° apart
+- Three DYNAMIXEL RX-28 actuators
+- Motor-driven tendon spools with a nominal effective radius of 2.5 mm
+- A MATLAB R2025a actuation interface using the DYNAMIXEL SDK
 
-## Modeling approach
+The mathematical models use a nominal symmetric tendon-routing radius
+of 6 mm. The supplied manufactured disk STL differs from this nominal
+model geometry; the measured mesh geometry and related reproducibility
+notes are documented in
+[`mechanical/README.md`](mechanical/README.md).
 
-### Static models
+## Modeling Approach
 
-Two Cosserat-rod formulations predict the backbone configuration
-under prescribed tendon tensions:
+### Static Cosserat-Rod Models
 
-- Newtonian formulation: force and moment equilibrium, integrated
-  using ode45 and solved through a shooting method with fsolve.
-- Lagrangian formulation: strain-basis approximation and
-  Newton–Raphson solution of the static equilibrium equations.
+Two static Cosserat-rod formulations are included.
 
-The formulations produced practically identical tip positions for
-the loading cases investigated in the thesis.
+**Newtonian formulation**
 
-### Displacement-to-tension iteration
+The Newtonian model is based on distributed force and moment equilibrium.
+The spatial equations are integrated numerically using `ode45`, while a
+shooting method and `fsolve` are used to satisfy the boundary conditions.
 
-An outer PD-based numerical iteration adjusts tendon tension until
-the Newtonian model reproduces a prescribed tendon shortening.
+**Lagrangian formulation**
 
-This is an offline numerical procedure. It is separate from the
-physical motor command interface.
+The Lagrangian model represents the rod strains through a finite
+strain-basis approximation and determines the equilibrium configuration
+using an energy-based formulation and Newton-Raphson iteration.
 
-### Dynamic model
+For the loading cases examined in the thesis, the two formulations
+produced practically identical predicted tip positions.
 
-The dynamic formulation includes backbone inertia, internal damping,
-gravity, quadratic drag, and prescribed time-dependent tendon tensions.
-It uses implicit BDF-alpha time discretization and spatial shooting.
+The corresponding implementations are available in
+[`modeling/`](modeling/).
 
-Dynamic results are numerical predictions and have not been
-experimentally validated.
+### Displacement-to-Tension Iteration
 
-## Actuation
+The static Cosserat formulations use tendon tension as a model input,
+while the physical actuation system is commanded using nominal tendon
+pull.
 
-The MATLAB motor interface converts nominal tendon pulls in
-millimetres into RX-28 Goal Position commands.
+An outer PD-based numerical iteration was therefore implemented to
+adjust tendon tension until the Newtonian model reproduces a prescribed
+tendon shortening.
 
-Actual tendon displacement and tension are not directly measured.
-Transmission effects such as friction, slack, and tendon elongation
-can therefore cause the physical motion to differ from the command.
+This procedure is an offline numerical algorithm and is separate from
+the physical DYNAMIXEL motor controller.
 
-## Preliminary experimental results
+### Dynamic Model
 
-Static evaluation comprised one unloaded condition and six
-single-active-tendon tests using nominal pulls of 5 mm and 10 mm.
+The dynamic Cosserat-rod implementation investigates the transient
+backbone response under time-dependent tendon tensions.
 
-Across the six loaded cases:
+The formulation includes backbone inertia, internal damping, gravity,
+drag, and time-dependent tendon loading. Temporal integration is based
+on an implicit BDF-alpha formulation combined with spatial integration
+of the rod equations.
+
+The dynamic results contained in this repository are numerical
+predictions and were not experimentally validated during the project.
+
+## Actuation and Electronics
+
+Three ROBOTIS DYNAMIXEL RX-28 actuators are used, with one actuator
+assigned to each tendon.
+
+The implemented communication architecture is:
+
+```text
+Computer / MATLAB R2025a
+        |
+       USB
+        |
+   ROBOTIS U2D2
+        |
+      RS-485
+        |
+   U2D2 Power Hub
+        |
+   RS-485 + Power
+        |
+      RX-28 ID 1
+        |
+    Daisy chain
+        |
+      RX-28 ID 2
+        |
+    Daisy chain
+        |
+      RX-28 ID 3
+```
+
+The MATLAB actuation interface converts prescribed nominal tendon pulls
+into DYNAMIXEL Goal Position commands.
+
+The motor shaft positions are internally regulated by the RX-28
+controllers. However, actual tendon displacement, tendon tension,
+backbone shape, and robot tip position are not directly measured.
+
+The implementation is available in
+[`actuation/`](actuation/), while the hardware architecture is
+documented in [`electronics/`](electronics/).
+
+## Preliminary Experimental Evaluation
+
+The physical robot was compared with the Newtonian static model using
+one unloaded condition and six single-active-tendon tests.
+
+The nominal tendon-pull commands were 5 mm and 10 mm.
 
 | Metric | Value |
 |---|---:|
 | Mean absolute vertical-position error | 11.54 mm |
 | Root-mean-square vertical-position error | 14.01 mm |
 | Maximum absolute vertical-position error | 21.08 mm |
+| Mean relative error | Approximately 6.51% |
 
-The model captured the bending trend but predicted greater bending
-than observed, particularly for the 10 mm commands.
+The model reproduced the principal relationship between increasing
+nominal tendon pull and increasing backbone deformation.
 
-Validation was limited to manually measured vertical tip coordinates,
-with one measurement per operating point.
+However, the physical robot bent less than predicted by the static model,
+particularly for the 10 mm commands.
 
-## Repository contents
+Possible sources of discrepancy include tendon friction, slack,
+elongation or permanent deformation, spool-winding effects,
+manufacturing asymmetries, mechanical tolerances, and uncertainty
+between commanded and actual tendon displacement.
+
+The complete experimental comparison is documented in
+[`experiments/`](experiments/).
+
+## Repository Structure
 
 | Location | Contents |
 |---|---|
-| `modeling/` | Static models, dynamic model, PD iteration, comparison scripts, and supporting functions |
-| `actuation/` | MATLAB commands for the DYNAMIXEL RX-28 actuators |
-| `LICENSE` | GPL-3.0 license text |
+| [`modeling/`](modeling/) | Newtonian and Lagrangian static models, dynamic model, displacement-to-tension iteration, comparison scripts, and supporting MATLAB functions |
+| [`actuation/`](actuation/) | MATLAB interface for commanding the DYNAMIXEL RX-28 actuators |
+| [`mechanical/`](mechanical/) | Mechanical STL files and geometry/reproducibility documentation |
+| [`electronics/`](electronics/) | Communication, power, U2D2, Power Hub, and actuator documentation |
+| [`experiments/`](experiments/) | Experimental comparison figures, results, metrics, and discussion |
+| [`docs/`](docs/) | Master's thesis and thesis documentation |
+| [`media/`](media/) | Prototype photographs and robot demonstration video |
+| [`CITATION.cff`](CITATION.cff) | Citation metadata for this repository |
+| [`THIRD_PARTY_NOTICES.md`](THIRD_PARTY_NOTICES.md) | Attribution and third-party software information |
+| [`LICENSE`](LICENSE) | GNU General Public License v3.0 |
 
-Mechanical files, electronics documentation, experimental data,
-photographs, and videos will be added progressively.
+## Master's Thesis
 
-## Software
+The complete thesis associated with this repository is:
 
-The thesis implementations used MATLAB R2025a.
+**Static and Dynamic Cosserat-Rod Modeling of a Single-Segment
+Tendon-Driven Continuum Robot**
 
-The Newtonian and dynamic solvers use fsolve from Optimization Toolbox.
-The motor interface additionally requires the ROBOTIS DYNAMIXEL SDK
-and configuration for the connected hardware.
+**Author:** Mohamad Nour Edeen  
+**Master's Degree:** Mechatronic Engineering  
+**University:** Politecnico di Torino  
+**Research host:** ISIR, Sorbonne Université
 
-The repository version has not yet been independently runtime-tested.
+[Read the thesis PDF](docs/Master_Thesis_Mohamad_Nouredeen.pdf)
+
+Additional thesis information is available in
+[`docs/README.md`](docs/README.md).
+
+## Software Requirements
+
+The thesis implementations were developed using **MATLAB R2025a**.
+
+The static Newtonian and dynamic implementations use `fsolve` from the
+MATLAB Optimization Toolbox.
+
+The physical actuation interface additionally requires the
+ROBOTIS DYNAMIXEL SDK and compatible DYNAMIXEL hardware.
+
+The repository version has not yet been independently reproduced on a
+separate computer. Users should therefore verify dependencies,
+environment configuration, and hardware settings before execution.
 
 ## Attribution
 
-The static Newtonian and Lagrangian implementations are adapted from
-the TIMClab-CAMI code associated with:
+Parts of the static Newtonian and Lagrangian Cosserat-rod
+implementations are adapted from the open-source TIMClab-CAMI project
+associated with:
 
-Matthias Tummers et al. (2023),
-“Cosserat Rod Modeling of Continuum Robots from Newtonian and
-Lagrangian Perspectives,” IEEE Transactions on Robotics.
+Matthias Tummers et al. (2023),  
+**"Cosserat Rod Modeling of Continuum Robots from Newtonian and
+Lagrangian Perspectives,"**  
+*IEEE Transactions on Robotics*.
 
-DOI: https://doi.org/10.1109/TRO.2023.3238171
+DOI:  
+https://doi.org/10.1109/TRO.2023.3238171
 
-Original code:
+Original implementation:  
 https://github.com/TIMClab-CAMI/Cosserat-Rod-Modeling-of-Tendon-Actuated-Continuum-Robots
 
-The adaptations include the prototype geometry and hollow-backbone
-material properties, additional numerical outputs, and a
-displacement-to-tension iteration. See LICENSE for the included
-GPL-3.0 terms.
+The project-specific adaptations include robot geometry and material
+parameters, tendon-routing configuration, additional numerical outputs,
+comparison procedures, and the displacement-to-tension iteration.
 
-The dynamic formulation follows the research references documented
-in the thesis.
+Detailed attribution information is provided in
+[`THIRD_PARTY_NOTICES.md`](THIRD_PARTY_NOTICES.md).
+
+The repository includes the applicable GPL-3.0 license text in
+[`LICENSE`](LICENSE).
+
+## Citation
+
+If you use material from this repository, please cite the repository
+using the metadata provided in:
+
+[`CITATION.cff`](CITATION.cff)
+
+Users of the adapted static Cosserat-rod implementation should also cite
+the original Tummers et al. publication listed above.
 
 ## Author
 
-Mohamad Nouredeen
+**Mohamad Nour Edeen**
