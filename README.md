@@ -1,3 +1,9 @@
+
+
+https://github.com/user-attachments/assets/0de2c3f7-74e6-4774-bb18-00cf13e078aa
+
+
+
 # Tendon-Driven Continuum Robot Platform
 
 A single-segment tendon-driven continuum robot developed during my
@@ -14,7 +20,10 @@ preliminary experimental evaluation of a physical TDCR prototype.
 
 Physical prototype during tendon actuation.
 
-[▶ Watch the robot demonstration video](media/robot-demonstration.mp4)
+
+https://github.com/user-attachments/assets/3df236bc-30ad-41d0-9584-1410d35f72d1
+
+
 
 ## Prototype
 
