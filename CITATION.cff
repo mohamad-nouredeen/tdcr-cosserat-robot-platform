@@ -4,6 +4,8 @@ message: "If you use this repository, please cite it using the metadata below."
 title: "Tendon-Driven Continuum Robot Platform"
 
 type: software
+version: "1.0.0"
+date-released: 2026-09-13
 
 authors:
   - family-names: "Nour Edeen"
